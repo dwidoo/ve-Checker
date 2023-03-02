@@ -6,3 +6,5 @@
 [2023-03-02 03:05:55,713] 	INFO 	141 	scrape.py 	<module>() 	Scrape Successful
 [2023-03-02 03:40:08,034] 	INFO 	43 	scrape.py 	<module>() 	Scrape Started
 [2023-03-02 03:40:48,889] 	INFO 	141 	scrape.py 	<module>() 	Scrape Successful
+[2023-03-02 04:10:21,700] 	INFO 	43 	scrape.py 	<module>() 	Scrape Started
+[2023-03-02 04:11:08,933] 	ERROR 	143 	scrape.py 	<module>() 	Error occurred while scraping Error: HTTP Error 500: Internal Server Error
