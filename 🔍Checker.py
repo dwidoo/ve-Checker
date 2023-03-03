@@ -65,11 +65,11 @@ try:
     # Total Supply
     totalSupply = contract_instance3.functions.balanceOf("0xfBBF371C9B0B994EebFcC977CEf603F7f31c070D").call() / 1000000000000000000
 
-    # todayDate = datetime.utcnow()
-    # lastThursday = todayDate + relativedelta(weekday=TH(-1))
-    # my_time = datetime.min.time()
-    # my_datetime = datetime.combine(lastThursday, my_time)
-    # currentepoch = int(my_datetime.replace(tzinfo=timezone.utc).timestamp())
+    todayDate = datetime.utcnow()
+    lastThursday = todayDate + relativedelta(weekday=TH(-1))
+    my_time = datetime.min.time()
+    my_datetime = datetime.combine(lastThursday, my_time)
+    currentepoch = int(my_datetime.replace(tzinfo=timezone.utc).timestamp())
 
 except Exception as e:
     print(e)
@@ -101,10 +101,8 @@ if selection == "Token ID":
         # Voted Last Epoch
         voted = contract_instance1.functions.voted(tokenid).call()
 
-        # # Voted Current Epoch
-        # votedcurrentepoch = (
-        #     contract_instance2.functions.lastVoted(tokenid).call() > currentepoch
-        # )
+        # Voted Current Epoch
+        votedcurrentepoch = contract_instance2.functions.lastVoted(tokenid).call() > currentepoch
 
         # creating a single-element container
         placeholder = st.empty()
@@ -118,10 +116,7 @@ if selection == "Token ID":
                 st.markdown("⏲️ Lock End Date: " + str(lockend))
                 st.markdown("🗳️ Vote Share: " + str(round(bal / totalSupply * 100, 4)) + "%")
                 st.markdown("✔️ Vote Reset: " + ["No" if voted == True else "Yes"][0])
-                # st.markdown(
-                #     "⚡ Voted Current Epoch: "
-                #     + ["No" if votedcurrentepoch == False else "Yes"][0]
-                # )
+                st.markdown("⚡ Voted Current Epoch: " + ["No" if votedcurrentepoch == False else "Yes"][0])
 
         # Note
         st.markdown("#")
@@ -187,11 +182,8 @@ if selection == "Address":
                 # Voted Last Epoch
                 voted = contract_instance1.functions.voted(tokenid).call()
 
-                # # Voted Current Epoch
-                # votedcurrentepoch = (
-                #     contract_instance2.functions.lastVoted(tokenid).call()
-                #     > currentepoch
-                # )
+                # Voted Current Epoch
+                votedcurrentepoch = contract_instance2.functions.lastVoted(tokenid).call() > currentepoch
 
                 tokendata.append(
                     {
@@ -202,9 +194,7 @@ if selection == "Address":
                         "⏲️ Lock End Date": lockend,
                         "🗳️ Vote Share %": round(bal / totalSupply * 100, 4),
                         "✔️ Vote Reset": ["No" if voted == True else "Yes"][0],
-                        # "⚡ Voted Current Epoch": [
-                        #     "No" if votedcurrentepoch == False else "Yes"
-                        # ][0],
+                        "⚡ Voted Current Epoch": ["No" if votedcurrentepoch == False else "Yes"][0],
                     }
                 )
 
