@@ -31,7 +31,7 @@ This was created by me aka 🍓ALMIGHTY ABE🍓 to fill the gap of NFT marketpla
 ## Important Links
 My Twitter: https://twitter.com/ALM1GHTYABE
 
-Thena's Twitter: https://twitter.com/ThenaFi\_
+Thena's Twitter: `https://twitter.com/ThenaFi\_`
 
 Thena's Discord: https://discord.gg/thena
 
