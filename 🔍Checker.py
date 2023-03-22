@@ -6,6 +6,7 @@ import streamlit as st
 from st_btn_select import st_btn_select
 import yaml
 import requests
+import jmespath
 import pandas as pd
 
 # App
@@ -34,17 +35,26 @@ st.title("🔍 veTHE Checker")
 selection = st_btn_select(("Token ID", "Address"))
 
 # THE Price
-params = {
-    "from": "0xF4C8E32EaDEC4BFe97E0F595AdD0f4450a863a11",
-    "to": "0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56",
-    "amount": "1000000000000000000",
-}
+# params = {
+#     "from": "0xF4C8E32EaDEC4BFe97E0F595AdD0f4450a863a11",
+#     "to": "0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56",
+#     "amount": "1000000000000000000",
+# }
+
+# try:
+#     response = requests.get("https://router.firebird.finance/bsc/route", params=params)
+#     THE_price = response.json()["maxReturn"]["tokens"]["0xf4c8e32eadec4bfe97e0f595add0f4450a863a11"]["price"]
+# except Exception as e:
+#     print(e)
+
 
 try:
-    response = requests.get("https://router.firebird.finance/bsc/route", params=params)
-    THE_price = response.json()["maxReturn"]["tokens"]["0xf4c8e32eadec4bfe97e0f595add0f4450a863a11"]["price"]
+    response = requests.get("https://api.thena.fi/api/v1/baseAssets")
+    pricedict = response.json()
+    THE_price = jmespath.search("data[?name=='THENA'].price", pricedict)[0]
 except Exception as e:
     print(e)
+
 
 try:
     provider_url = config["data"]["provider_url"]
