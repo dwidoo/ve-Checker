@@ -63,3 +63,5 @@
 [2023-04-20 11:06:34,932] 	ERROR 	137 	scrape.py 	<module>() 	Error occurred while scraping Error: name 'THE_price' is not defined
 [2023-04-20 11:32:51,467] 	INFO 	52 	scrape.py 	<module>() 	Scrape Started
 [2023-04-20 11:33:37,941] 	INFO 	135 	scrape.py 	<module>() 	Scrape Successful
+[2023-04-20 12:14:00,172] 	INFO 	52 	scrape.py 	<module>() 	Scrape Started
+[2023-04-20 12:14:48,493] 	INFO 	135 	scrape.py 	<module>() 	Scrape Successful
