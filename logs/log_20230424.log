@@ -50,3 +50,5 @@
 [2023-04-24 13:33:57,309] 	INFO 	135 	scrape.py 	<module>() 	Scrape Successful
 [2023-04-24 14:07:21,807] 	INFO 	52 	scrape.py 	<module>() 	Scrape Started
 [2023-04-24 14:09:27,002] 	ERROR 	137 	scrape.py 	<module>() 	Error occurred while scraping Error: HTTPSConnectionPool(host='rpc.ankr.com', port=443): Read timed out. (read timeout=10)
+[2023-04-24 14:32:51,556] 	INFO 	52 	scrape.py 	<module>() 	Scrape Started
+[2023-04-24 14:35:25,791] 	INFO 	135 	scrape.py 	<module>() 	Scrape Successful
