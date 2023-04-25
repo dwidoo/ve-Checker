@@ -56,3 +56,5 @@
 [2023-04-25 15:09:16,992] 	INFO 	135 	scrape.py 	<module>() 	Scrape Successful
 [2023-04-25 15:32:46,142] 	INFO 	52 	scrape.py 	<module>() 	Scrape Started
 [2023-04-25 15:34:13,195] 	INFO 	135 	scrape.py 	<module>() 	Scrape Successful
+[2023-04-25 16:09:30,523] 	INFO 	52 	scrape.py 	<module>() 	Scrape Started
+[2023-04-25 16:09:40,713] 	ERROR 	137 	scrape.py 	<module>() 	Error occurred while scraping Error: {'code': 0, 'message': "we can't execute this request"}
