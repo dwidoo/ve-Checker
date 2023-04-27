@@ -30,3 +30,5 @@
 [2023-04-27 08:34:02,876] 	INFO 	135 	scrape.py 	<module>() 	Scrape Successful
 [2023-04-27 09:07:47,843] 	INFO 	52 	scrape.py 	<module>() 	Scrape Started
 [2023-04-27 09:08:53,322] 	INFO 	135 	scrape.py 	<module>() 	Scrape Successful
+[2023-04-27 09:32:45,292] 	INFO 	52 	scrape.py 	<module>() 	Scrape Started
+[2023-04-27 09:33:23,970] 	ERROR 	137 	scrape.py 	<module>() 	Error occurred while scraping Error: ('Connection aborted.', ConnectionResetError(104, 'Connection reset by peer'))
