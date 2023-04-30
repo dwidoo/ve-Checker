@@ -61,3 +61,6 @@
 [2023-04-30 11:32:37,474] 	ERROR 	39 	scrape.py 	<module>() 	Failed getting THE Price Error: Expecting value: line 1 column 1 (char 0)
 [2023-04-30 11:32:37,521] 	INFO 	52 	scrape.py 	<module>() 	Scrape Started
 [2023-04-30 11:32:39,631] 	ERROR 	137 	scrape.py 	<module>() 	Error occurred while scraping Error: name 'THE_price' is not defined
+[2023-04-30 12:12:23,434] 	ERROR 	39 	scrape.py 	<module>() 	Failed getting THE Price Error: Expecting value: line 1 column 1 (char 0)
+[2023-04-30 12:12:23,482] 	INFO 	52 	scrape.py 	<module>() 	Scrape Started
+[2023-04-30 12:12:24,801] 	ERROR 	137 	scrape.py 	<module>() 	Error occurred while scraping Error: name 'THE_price' is not defined
