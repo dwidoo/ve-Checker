@@ -49,7 +49,7 @@ selection = st_btn_select(("Token ID", "Address"))
 
 
 try:
-    response = requests.get("https://api.thena.fi/api/v1/baseAssets")
+    response = requests.get("https://api.thena.fi/api/v1/assets")
     pricedict = response.json()
     THE_price = jmespath.search("data[?name=='THENA'].price", pricedict)[0]
 except Exception as e:
