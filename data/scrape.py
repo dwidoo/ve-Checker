@@ -32,7 +32,7 @@ params_path = "./params.yaml"
 #     logger.error("Failed getting THE Price Error: %s" % e)
 
 try:
-    response = requests.get("https://api.thena.fi/api/v1/baseAssets")
+    response = requests.get("https://api.thena.fi/api/v1/assets")
     pricedict = response.json()
     THE_price = jmespath.search("data[?name=='THENA'].price", pricedict)[0]
 except Exception as e:
