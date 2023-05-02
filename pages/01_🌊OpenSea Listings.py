@@ -35,6 +35,7 @@ try:
     listings_api = config["data"]["listings_api"]
     abi1 = config["data"]["abi1"]
     contract_address1 = config["data"]["contract_address1"]
+    contract_instance1 = w3.eth.contract(address=contract_address1, abi=abi1)
 except Exception as e:
     print(e)
 
