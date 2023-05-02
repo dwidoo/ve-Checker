@@ -98,7 +98,7 @@ try:
             print(e)
 
     with concurrent.futures.ThreadPoolExecutor() as ex:
-    ex.map(get_veTHE_data, tokenids)
+        ex.map(get_veTHE_data, tokenids)
 
 except Exception as e:
     print(e)
