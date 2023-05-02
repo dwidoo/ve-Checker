@@ -3,12 +3,10 @@ import streamlit as st
 import yaml
 import requests
 import pandas as pd
-import os
 from web3 import Web3
 import jmespath
 import concurrent.futures
 import time
-import json
 
 # App
 st.set_page_config(
@@ -55,9 +53,7 @@ except Exception as e:
 # Listings Data
 try:
     ## Requests
-    credentials = os.environ["OKEY"]
-    credentials = json.loads(credentials)
-    headers = {"accept": "application/json", "X-API-KEY": credentials}
+    headers = {"accept": "application/json", "X-API-KEY": st.secrets['OKEY']}
     response = requests.get(listings_api, headers=headers)
   
     ## Pandas Manipulation
