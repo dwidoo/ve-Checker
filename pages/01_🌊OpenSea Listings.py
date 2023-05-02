@@ -33,6 +33,8 @@ st.title("🌊 OpenSea Listings")
 
 try:
     listings_api = config["data"]["listings_api"]
+    provider_url = config["data"]["provider_url"]
+    w3 = Web3(Web3.HTTPProvider(provider_url))
     abi1 = config["data"]["abi1"]
     contract_address1 = config["data"]["contract_address1"]
     contract_instance1 = w3.eth.contract(address=contract_address1, abi=abi1)
