@@ -3,6 +3,11 @@ import streamlit as st
 import yaml
 import requests
 import pandas as pd
+import os
+from web3 import Web3
+import jmespath
+import concurrent.futures
+import time
 
 # App
 st.set_page_config(
@@ -28,48 +33,87 @@ st.title("🌊 OpenSea Listings")
 
 try:
     listings_api = config["data"]["listings_api"]
+    abi1 = config["data"]["abi1"]
+    contract_address1 = config["data"]["contract_address1"]
 except Exception as e:
     print(e)
 
-# Listings Data
-## Requests
-response = requests.get(listings_api)
-listings_data = response.json()
+try:
+    # Get BNB Price
+    response = requests.get("https://api.thena.fi/api/v1/assets")
+    pricedict = response.json()
+    THE_price = jmespath.search("data[?name=='THENA'].price", pricedict)[0]
+    BNB_price = jmespath.search("data[?name=='Wrapped BNB'].price", pricedict)[0]
+except Exception as e:
+    print(e)
 
+
+# Listings Data
+try:
+    ## Requests
+    credentials = os.environ["OKEY"]
+    headers = {"accept": "application/json", "X-API-KEY": key}
+    response = requests.get(listings_api, headers=headers)
+  
+    ## Pandas Manipulation
+    df = pd.json_normalize(response.json()['listings'])
+    df.drop(['order_hash', 'chain', 'type', 'protocol_address', 'price.current.currency', 'price.current.decimals', 'protocol_data.parameters.offerer', 'protocol_data.parameters.consideration', 'protocol_data.parameters.startTime', 'protocol_data.parameters.endTime', 'protocol_data.parameters.orderType', 'protocol_data.parameters.zone', 'protocol_data.parameters.zoneHash', 'protocol_data.parameters.salt', 'protocol_data.parameters.conduitKey', 'protocol_data.parameters.totalOriginalConsiderationItems', 'protocol_data.parameters.counter', 'protocol_data.signature'], axis=1, inplace=True)
+    df['protocol_data.parameters.offer'] = df['protocol_data.parameters.offer'].str[0]
+    df['id'] = pd.json_normalize(df['protocol_data.parameters.offer'])['identifierOrCriteria']
+    df.drop(['protocol_data.parameters.offer'], axis=1, inplace=True)
+    df['price.current.value'] = df['price.current.value'].astype(float)/1000000000000000000
+    df['id'] = df['id'].astype(int)
+except Exception as e:
+    print(e)
+
+## Web3
+try:
+    tokenids = df['id']
+    tokendata = []
+    def get_veTHE_data(tokenid):
+        try:
+            # Locked veTHE
+            locked = round(
+                contract_instance1.functions.locked(tokenid).call()[0] / 1000000000000000000,
+                4,
+            )
+
+            # Balance veTHE
+            bal = round(
+                contract_instance1.functions.balanceOfNFT(tokenid).call() / 1000000000000000000,
+                4,
+            )
+
+            # Lock End Date
+            lockend = time.strftime(
+                "%Y-%m-%d",
+                time.gmtime(int(contract_instance1.functions.locked(tokenid).call()[1])),
+            )
+
+            # Voted Last Epoch
+            voted = contract_instance1.functions.voted(tokenid).call()
+
+            tokendata.append({"🔢 Token ID": tokenid, "🔒 Locked THE": locked, "🧾 veTHE Balance": bal, "🤑 veTHE Value in USD": round(THE_price * locked, 4), "⏲️ Lock End Date": lockend, "✔️ Vote Reset": ["No" if voted == True else "Yes"][0]})
+        except Exception as e:
+            print(e)
+
+    with concurrent.futures.ThreadPoolExecutor() as ex:
+    ex.map(get_veTHE_data, tokenids)
+
+except Exception as e:
+    print(e)
+    
 ## Pandas Manipulation
-listings_df = pd.DataFrame(listings_data)
-listings_df = listings_df[listings_df["veLocked"] >= 1]
-listings_df["💸 Potential Profit in USD"] = listings_df["valueUSD"] - listings_df["listedPriceUSD"]
-listings_df["⏲️ Lock End Date"] = listings_df["veLockedTimestamp"].apply(lambda x: time.strftime("%Y-%m-%d", time.gmtime(int(x))))
-listings_df["🛒 Discount %"] = (listings_df["valueUSD"] - listings_df["listedPriceUSD"]) / listings_df["valueUSD"] * 100
-listings_df["🔗 OS Link"] = listings_df["id"].apply(lambda x: '<a href="https://opensea.io/assets/bsc/0xfbbf371c9b0b994eebfcc977cef603f7f31c070d/' + str(x) + '">OS Link</a>')
-listings_df = listings_df[["id", "listedPriceBNB", "listedPriceUSD", "valueUSD", "veBalance", "veLocked", "💸 Potential Profit in USD", "⏲️ Lock End Date", "🛒 Discount %", "🔗 OS Link"]]
-listings_df.columns = [
-    "🔢 Token ID",
-    "🟨 Sale Price in BNB",
-    "💰 Sale Price in USD",
-    "🤑 veTHE Value in USD",
-    "🧾 veTHE Balance",
-    "🔒 Locked THE",
-    "💸 Potential Profit in USD",
-    "⏲️ Lock End Date",
-    "🛒 Discount %",
-    "🔗 OS Link",
-]
-listings_df = listings_df[
-    [
-        "🔢 Token ID",
-        "🔒 Locked THE",
-        "🧾 veTHE Balance",
-        "🤑 veTHE Value in USD",
-        "⏲️ Lock End Date",
-        "🟨 Sale Price in BNB",
-        "💰 Sale Price in USD",
-        "💸 Potential Profit in USD",
-        "🛒 Discount %",
-        "🔗 OS Link",
-    ]
-]
+listings_df = pd.DataFrame(tokendata)
+listings_df = listings_df[listings_df["🔒 Locked THE"] >= 1]
+listings_df = listings_df[listings_df["✔️ Vote Reset"] == "Yes"]
+listings_df = listings_df.merge(df, how="left", left_on="🔢 Token ID", right_on="id").drop(columns="id")
+listings_df.rename(columns = {"price.current.value":"🟨 Sale Price in BNB"}, inplace = True)
+listings_df["💰 Sale Price in USD"] = listings_df["🟨 Sale Price in BNB"] * BNB_price
+listings_df["💸 Potential Profit in USD"] = listings_df["🤑 veTHE Value in USD"] - listings_df["💰 Sale Price in USD"]
+listings_df["🛒 Discount %"] = (listings_df["🤑 veTHE Value in USD"] - listings_df["💰 Sale Price in USD"]) / listings_df["🤑 veTHE Value in USD"] * 100
+listings_df["🔗 OS Link"] = listings_df["🔢 Token ID"].apply(lambda x: '<a href="https://opensea.io/assets/bsc/0xfbbf371c9b0b994eebfcc977cef603f7f31c070d/' + str(x) + '">OS Link</a>')
+listings_df.drop(columns=["✔️ Vote Reset"], inplace=True)
 listings_df.sort_values(by="🛒 Discount %", ascending=False, inplace=True)
 
 # creating a single-element container
@@ -91,6 +135,6 @@ NFA, DYOR -- This web app is in beta, I am not responsible for any information o
 
 :red[Negative Discount/Profit = Bad Deal = ngmi]
     
-Special Thanks to **CryptoCult** for creating and providing access to the Listings API.
+:violet[If you found this useful you can buy me aka ALMIGHTY ABE a :coffee: at 0x5783Fb2f3d93364041d49097b66086703527AeaC]
             """
 )
