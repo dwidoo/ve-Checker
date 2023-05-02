@@ -99,22 +99,24 @@ try:
 
     with concurrent.futures.ThreadPoolExecutor() as ex:
         ex.map(get_veTHE_data, tokenids)
-
 except Exception as e:
     print(e)
     
 ## Pandas Manipulation
-listings_df = pd.DataFrame(tokendata)
-listings_df = listings_df[listings_df["🔒 Locked THE"] >= 1]
-listings_df = listings_df[listings_df["✔️ Vote Reset"] == "Yes"]
-listings_df = listings_df.merge(df, how="left", left_on="🔢 Token ID", right_on="id").drop(columns="id")
-listings_df.rename(columns = {"price.current.value":"🟨 Sale Price in BNB"}, inplace = True)
-listings_df["💰 Sale Price in USD"] = listings_df["🟨 Sale Price in BNB"] * BNB_price
-listings_df["💸 Potential Profit in USD"] = listings_df["🤑 veTHE Value in USD"] - listings_df["💰 Sale Price in USD"]
-listings_df["🛒 Discount %"] = (listings_df["🤑 veTHE Value in USD"] - listings_df["💰 Sale Price in USD"]) / listings_df["🤑 veTHE Value in USD"] * 100
-listings_df["🔗 OS Link"] = listings_df["🔢 Token ID"].apply(lambda x: '<a href="https://opensea.io/assets/bsc/0xfbbf371c9b0b994eebfcc977cef603f7f31c070d/' + str(x) + '">OS Link</a>')
-listings_df.drop(columns=["✔️ Vote Reset"], inplace=True)
-listings_df.sort_values(by="🛒 Discount %", ascending=False, inplace=True)
+try:
+    listings_df = pd.DataFrame(tokendata)
+    listings_df = listings_df[listings_df["🔒 Locked THE"] >= 1]
+    listings_df = listings_df[listings_df["✔️ Vote Reset"] == "Yes"]
+    listings_df = listings_df.merge(df, how="left", left_on="🔢 Token ID", right_on="id").drop(columns="id")
+    listings_df.rename(columns = {"price.current.value":"🟨 Sale Price in BNB"}, inplace = True)
+    listings_df["💰 Sale Price in USD"] = listings_df["🟨 Sale Price in BNB"] * BNB_price
+    listings_df["💸 Potential Profit in USD"] = listings_df["🤑 veTHE Value in USD"] - listings_df["💰 Sale Price in USD"]
+    listings_df["🛒 Discount %"] = (listings_df["🤑 veTHE Value in USD"] - listings_df["💰 Sale Price in USD"]) / listings_df["🤑 veTHE Value in USD"] * 100
+    listings_df["🔗 OS Link"] = listings_df["🔢 Token ID"].apply(lambda x: '<a href="https://opensea.io/assets/bsc/0xfbbf371c9b0b994eebfcc977cef603f7f31c070d/' + str(x) + '">OS Link</a>')
+    listings_df.drop(columns=["✔️ Vote Reset"], inplace=True)
+    listings_df.sort_values(by="🛒 Discount %", ascending=False, inplace=True)
+except Exception as e:
+    print(e)
 
 # creating a single-element container
 placeholder = st.empty()
