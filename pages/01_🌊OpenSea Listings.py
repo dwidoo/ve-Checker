@@ -55,6 +55,7 @@ except Exception as e:
 try:
     ## Requests
     credentials = os.environ["OKEY"]
+    credentials = json.loads(credentials)
     headers = {"accept": "application/json", "X-API-KEY": credentials}
     response = requests.get(listings_api, headers=headers)
   
