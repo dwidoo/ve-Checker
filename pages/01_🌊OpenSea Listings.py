@@ -52,7 +52,7 @@ except Exception as e:
 try:
     ## Requests
     credentials = os.environ["OKEY"]
-    headers = {"accept": "application/json", "X-API-KEY": key}
+    headers = {"accept": "application/json", "X-API-KEY": credentials}
     response = requests.get(listings_api, headers=headers)
   
     ## Pandas Manipulation
