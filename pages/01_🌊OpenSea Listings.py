@@ -4,6 +4,7 @@ import yaml
 import requests
 import pandas as pd
 from web3 import Web3
+from web3.middleware import validation
 import jmespath
 import concurrent.futures
 import time
@@ -33,7 +34,8 @@ st.title("🌊 OpenSea Listings")
 try:
     listings_api = config["data"]["listings_api"]
     provider_url = config["data"]["provider_url"]
-    w3 = Web3(Web3.HTTPProvider(provider_url))
+    validation.METHODS_TO_VALIDATE = []
+    w3 = Web3(Web3.HTTPProvider(provider_url, request_kwargs={"timeout": 60}))
     abi1 = config["data"]["abi1"]
     contract_address1 = config["data"]["contract_address1"]
     contract_instance1 = w3.eth.contract(address=contract_address1, abi=abi1)
