@@ -113,7 +113,7 @@ except Exception as e:
 try:
     listings_df = pd.DataFrame(tokendata)
 #     listings_df = listings_df[listings_df["🔒 Locked THE"] >= 1]
-    listings_df = listings_df[listings_df["✔️ Vote Reset"] == "Yes"]
+#     listings_df = listings_df[listings_df["✔️ Vote Reset"] == "Yes"]
     listings_df = listings_df.merge(df, how="left", left_on="🔢 Token ID", right_on="id").drop(columns="id")
     listings_df.rename(columns = {"price.current.value":"🟨 Sale Price in BNB"}, inplace = True)
     listings_df["💰 Sale Price in USD"] = listings_df["🟨 Sale Price in BNB"] * BNB_price
