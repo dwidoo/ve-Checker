@@ -82,6 +82,12 @@ try:
             if locked <= 1:
                 return
             
+            # Voted Last Epoch
+            voted = contract_instance1.functions.voted(tokenid).call()
+
+            if voted == True:
+                return
+            
             # Balance veTHE
             bal = round(
                 contract_instance1.functions.balanceOfNFT(tokenid).call() / 1000000000000000000,
@@ -93,9 +99,6 @@ try:
                 "%Y-%m-%d",
                 time.gmtime(int(contract_instance1.functions.locked(tokenid).call()[1])),
             )
-
-            # Voted Last Epoch
-            voted = contract_instance1.functions.voted(tokenid).call()
 
             tokendata.append({"🔢 Token ID": tokenid, "🔒 Locked THE": locked, "🧾 veTHE Balance": bal, "🤑 veTHE Value in USD": round(THE_price * locked, 4), "⏲️ Lock End Date": lockend, "✔️ Vote Reset": ["No" if voted == True else "Yes"][0]})
         except Exception as e:
