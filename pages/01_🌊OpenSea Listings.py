@@ -64,6 +64,7 @@ try:
     df.drop(['protocol_data.parameters.offer'], axis=1, inplace=True)
     df['price.current.value'] = df['price.current.value'].astype(float)/1000000000000000000
     df['id'] = df['id'].astype(int)
+    df.drop_duplicates(subset=["id"], keep='last', inplace=True)
 except Exception as e:
     print(e)
 
