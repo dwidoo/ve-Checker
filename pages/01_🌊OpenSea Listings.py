@@ -80,7 +80,7 @@ try:
             )
             
             if locked <= 1:
-            return
+                return
             
             # Balance veTHE
             bal = round(
