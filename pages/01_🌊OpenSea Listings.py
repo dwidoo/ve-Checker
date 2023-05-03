@@ -78,7 +78,10 @@ try:
                 contract_instance1.functions.locked(tokenid).call()[0] / 1000000000000000000,
                 4,
             )
-
+            
+            if locked <= 1:
+            return
+            
             # Balance veTHE
             bal = round(
                 contract_instance1.functions.balanceOfNFT(tokenid).call() / 1000000000000000000,
@@ -106,7 +109,7 @@ except Exception as e:
 ## Pandas Manipulation
 try:
     listings_df = pd.DataFrame(tokendata)
-    listings_df = listings_df[listings_df["🔒 Locked THE"] >= 1]
+#     listings_df = listings_df[listings_df["🔒 Locked THE"] >= 1]
     listings_df = listings_df[listings_df["✔️ Vote Reset"] == "Yes"]
     listings_df = listings_df.merge(df, how="left", left_on="🔢 Token ID", right_on="id").drop(columns="id")
     listings_df.rename(columns = {"price.current.value":"🟨 Sale Price in BNB"}, inplace = True)
