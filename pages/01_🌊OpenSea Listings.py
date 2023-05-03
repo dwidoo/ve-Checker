@@ -41,7 +41,7 @@ except Exception as e:
     print(e)
 
 try:
-    # Get BNB Price
+    # Get THE & BNB Price
     response = requests.get("https://api.thena.fi/api/v1/assets")
     pricedict = response.json()
     THE_price = jmespath.search("data[?name=='THENA'].price", pricedict)[0]
