@@ -50,7 +50,6 @@ selection = st_btn_select(("Token ID", "Address"))
 
 try:
     response = requests.get("https://coins.llama.fi/prices/current/arbitrum:0x15b2fb8f08E4Ac1Ce019EADAe02eE92AeDF06851?searchWidth=1h")
-    print(response)
     pricedict = response.json()
     #CHR_price = jmespath.search("data[?symbol=='CHR'].price", pricedict)[0]
     CHR_price = pricedict["coins"]["arbitrum:0x15b2fb8f08E4Ac1Ce019EADAe02eE92AeDF06851"]["price"]
