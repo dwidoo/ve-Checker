@@ -121,9 +121,12 @@ try:
 except Exception as e:
     print(e)
 
+print(tokendata)
+
 # Pandas Manipulation
 try:
     listings_df = pd.DataFrame(tokendata)
+    print(listings_df)
 #     listings_df = listings_df[listings_df["🔒 Locked CHR"] >= 1]
 #     listings_df = listings_df[listings_df["✔️ Vote Reset"] == "Yes"]
     listings_df = listings_df.merge(
