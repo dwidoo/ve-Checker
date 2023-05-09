@@ -60,14 +60,15 @@ except Exception as e:
 # Listings Data
 try:
     # Requests
-    headers = {"accept": "application/json", "X-API-KEY": st.secrets['OKEY']}
+    #headers = {"accept": "application/json", "X-API-KEY": st.secrets['OKEY']}
+    headers = {"accept": "application/json"}
+    #response = requests.get(listings_api, headers=headers)
     response = requests.get(listings_api, headers=headers)
-
     # Pandas Manipulation
-    df = pd.json_normalize(response.json())
-    df = df[['Orders Price Amount Native', 'Orders Criteria Data Token Tokenid']]
-    df.rename(columns={'Orders Price Amount Native': 'price.current.value',
-              'Orders Criteria Data Token Tokenid': 'id'}, inplace=True)
+    df = pd.json_normalize(response.json()['orders'])
+    df = df[['price.amount.native', 'criteria.data.token.tokenId']]
+    df.rename(columns={'price.amount.native': 'price.current.value',
+              'criteria.data.token.tokenId': 'id'}, inplace=True)
     df['price.current.value'] = df['price.current.value'].astype(float)
     df['id'] = df['id'].astype(int)
     df.drop_duplicates(subset=["id"], keep='last', inplace=True)
