@@ -148,13 +148,10 @@ try:
     # Empty Placeholder Filled
     with placeholder.container():
         st.write(listings_df.to_html(escape=False, index=False, float_format="{:10.2f}".format), unsafe_allow_html=True)
-except Exception as e:
-    print(e)
-
-# Note
-st.markdown("#")
-st.markdown("#")
-st.caption(
+        # Note
+        st.markdown("#")
+        st.markdown("#")
+        st.caption(
     """
 NFA, DYOR -- This web app is in beta, I am not responsible for any information on this page.
 
@@ -165,3 +162,7 @@ NFA, DYOR -- This web app is in beta, I am not responsible for any information o
 :violet[If you found this useful you can buy me aka ALMIGHTY ABE a :coffee: at 0x5783Fb2f3d93364041d49097b66086703527AeaC]
             """
 )
+
+except Exception as e:
+    print(e)
+
