@@ -52,7 +52,8 @@ try:
     response = requests.get("https://coins.llama.fi/prices/current/arbitrum:0x15b2fb8f08E4Ac1Ce019EADAe02eE92AeDF06851?searchWidth=1h")
     print(response)
     pricedict = response.json()
-    CHR_price = jmespath.search("data[?symbol=='CHR'].price", pricedict)[0]
+    #CHR_price = jmespath.search("data[?symbol=='CHR'].price", pricedict)[0]
+    CHR_price = pricedict["coins"]["arbitrum:0x15b2fb8f08E4Ac1Ce019EADAe02eE92AeDF06851"]["price"]
 except Exception as e:
     print(e)
 
@@ -122,7 +123,7 @@ if selection == "Token ID":
             if tokenid:
                 st.markdown("🔒 Locked CHR: " + str(locked))
                 st.markdown("🧾 veCHR Balance: " + str(bal))
-                st.markdown("🤑 Estimated BUSD Value: $" + str(round(CHR_price * locked, 4)))
+                st.markdown("🤑 Estimated USD Value: $" + str(round(CHR_price * locked, 4)))
                 st.markdown("⏲️ Lock End Date: " + str(lockend))
                 st.markdown("🗳️ Vote Share: " + str(round(bal / totalSupply * 100, 4)) + "%")
                 st.markdown("✔️ Vote Reset: " + ["No" if voted == True else "Yes"][0])

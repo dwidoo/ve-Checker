@@ -47,11 +47,12 @@ try:
     response = requests.get(
         "https://coins.llama.fi/prices/current/arbitrum:0x15b2fb8f08E4Ac1Ce019EADAe02eE92AeDF06851?searchWidth=1h")
     pricedict = response.json()
-    CHR_price = jmespath.search("data[?symbol=='CHR'].price", pricedict)[0]
+    #CHR_price = jmespath.search("data[?symbol=='CHR'].price", pricedict)[0]
+    CHR_price = pricedict["coins"]["arbitrum:0x15b2fb8f08E4Ac1Ce019EADAe02eE92AeDF06851"]["price"]
     response2 = requests.get(
         "https://coins.llama.fi/prices/current/ethereum:0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2?searchWidth=1h")
     pricedict2 = response.json()
-    ETH_price = jmespath.search("data[?symbol=='WETH'].price", pricedict2)[0]
+    ETH_price = pricedict2["coins"]["ethereum:0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2"]["price"]
 except Exception as e:
     print(e)
 
