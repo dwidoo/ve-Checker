@@ -44,66 +44,74 @@ except Exception as e:
 
 try:
     # Get CHR & ETH Price
-    response = requests.get("https://coins.llama.fi/prices/current/arbitrum:0x15b2fb8f08E4Ac1Ce019EADAe02eE92AeDF06851?searchWidth=1h")
+    response = requests.get(
+        "https://coins.llama.fi/prices/current/arbitrum:0x15b2fb8f08E4Ac1Ce019EADAe02eE92AeDF06851?searchWidth=1h")
     pricedict = response.json()
-    CHR_price = jmespath.search("data[?Symbol=='CHR'].price", pricedict)[0]
-    response2 = requests.get("https://coins.llama.fi/prices/current/ethereum:0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2?searchWidth=1h")
+    CHR_price = jmespath.search("data[?symbol=='CHR'].price", pricedict)[0]
+    response2 = requests.get(
+        "https://coins.llama.fi/prices/current/ethereum:0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2?searchWidth=1h")
     pricedict2 = response.json()
-    ETH_price = jmespath.search("data[?Symbol=='WETH'].price", pricedict2)[0]
+    ETH_price = jmespath.search("data[?symbol=='WETH'].price", pricedict2)[0]
 except Exception as e:
     print(e)
 
 
 # Listings Data
 try:
-    ## Requests
+    # Requests
     headers = {"accept": "application/json", "X-API-KEY": st.secrets['OKEY']}
     response = requests.get(listings_api, headers=headers)
-  
-    ## Pandas Manipulation
+
+    # Pandas Manipulation
     df = pd.json_normalize(response.json())
     df = df[['Orders Price Amount Native', 'Orders Criteria Data Token Tokenid']]
-    df.rename(columns={'Orders Price Amount Native': 'price.current.value', 'Orders Criteria Data Token Tokenid': 'id'}, inplace=True)
+    df.rename(columns={'Orders Price Amount Native': 'price.current.value',
+              'Orders Criteria Data Token Tokenid': 'id'}, inplace=True)
     df['price.current.value'] = df['price.current.value'].astype(float)
     df['id'] = df['id'].astype(int)
     df.drop_duplicates(subset=["id"], keep='last', inplace=True)
 except Exception as e:
     print(e)
 
-## Web3
+# Web3
 try:
     tokenids = df['id']
     tokendata = []
+
     def get_veCHR_data(tokenid):
         try:
             # Locked veCHR
             locked = round(
-                contract_instance1.functions.locked(tokenid).call()[0] / 1000000000000000000,
+                contract_instance1.functions.locked(
+                    tokenid).call()[0] / 1000000000000000000,
                 4,
             )
-            
+
             if locked <= 1:
                 return
-            
+
             # Voted Last Epoch
             voted = contract_instance1.functions.voted(tokenid).call()
 
             if voted == True:
                 return
-            
+
             # Balance veCHR
             bal = round(
-                contract_instance1.functions.balanceOfNFT(tokenid).call() / 1000000000000000000,
+                contract_instance1.functions.balanceOfNFT(
+                    tokenid).call() / 1000000000000000000,
                 4,
             )
 
             # Lock End Date
             lockend = time.strftime(
                 "%Y-%m-%d",
-                time.gmtime(int(contract_instance1.functions.locked(tokenid).call()[1])),
+                time.gmtime(
+                    int(contract_instance1.functions.locked(tokenid).call()[1])),
             )
 
-            tokendata.append({"🔢 Token ID": tokenid, "🔒 Locked CHR": locked, "🧾 veCHR Balance": bal, "🤑 veCHR Value in USD": round(CHR_price * locked, 4), "⏲️ Lock End Date": lockend, "✔️ Vote Reset": ["No" if voted == True else "Yes"][0]})
+            tokendata.append({"🔢 Token ID": tokenid, "🔒 Locked CHR": locked, "🧾 veCHR Balance": bal, "🤑 veCHR Value in USD": round(
+                CHR_price * locked, 4), "⏲️ Lock End Date": lockend, "✔️ Vote Reset": ["No" if voted == True else "Yes"][0]})
         except Exception as e:
             print(e)
 
@@ -111,18 +119,23 @@ try:
         ex.map(get_veCHR_data, tokenids)
 except Exception as e:
     print(e)
-    
-## Pandas Manipulation
+
+# Pandas Manipulation
 try:
     listings_df = pd.DataFrame(tokendata)
 #     listings_df = listings_df[listings_df["🔒 Locked CHR"] >= 1]
 #     listings_df = listings_df[listings_df["✔️ Vote Reset"] == "Yes"]
-    listings_df = listings_df.merge(df, how="left", left_on="🔢 Token ID", right_on="id").drop(columns="id")
-    listings_df.rename(columns = {"price.current.value":"🟨 Sale Price in ETH"}, inplace = True)
+    listings_df = listings_df.merge(
+        df, how="left", left_on="🔢 Token ID", right_on="id").drop(columns="id")
+    listings_df.rename(
+        columns={"price.current.value": "🟨 Sale Price in ETH"}, inplace=True)
     listings_df["💰 Sale Price in USD"] = listings_df["🟨 Sale Price in ETH"] * ETH_price
-    listings_df["💸 Potential Profit in USD"] = listings_df["🤑 veCHR Value in USD"] - listings_df["💰 Sale Price in USD"]
-    listings_df["🛒 Discount %"] = (listings_df["🤑 veCHR Value in USD"] - listings_df["💰 Sale Price in USD"]) / listings_df["🤑 veCHR Value in USD"] * 100
-    listings_df["🔗 OS Link"] = listings_df["🔢 Token ID"].apply(lambda x: '<a href="https://opensea.io/assets/bsc/0x9A01857f33aa382b1d5bb96C3180347862432B0d/' + str(x) + '">OS Link</a>')
+    listings_df["💸 Potential Profit in USD"] = listings_df["🤑 veCHR Value in USD"] - \
+        listings_df["💰 Sale Price in USD"]
+    listings_df["🛒 Discount %"] = (listings_df["🤑 veCHR Value in USD"] -
+                                   listings_df["💰 Sale Price in USD"]) / listings_df["🤑 veCHR Value in USD"] * 100
+    listings_df["🔗 OS Link"] = listings_df["🔢 Token ID"].apply(
+        lambda x: '<a href="https://opensea.io/assets/bsc/0x9A01857f33aa382b1d5bb96C3180347862432B0d/' + str(x) + '">OS Link</a>')
     listings_df.drop(columns=["✔️ Vote Reset"], inplace=True)
     listings_df.sort_values(by="🛒 Discount %", ascending=False, inplace=True)
 except Exception as e:
@@ -133,7 +146,8 @@ placeholder = st.empty()
 
 # Empty Placeholder Filled
 with placeholder.container():
-    st.write(listings_df.to_html(escape=False, index=False, float_format="{:10.2f}".format), unsafe_allow_html=True)
+    st.write(listings_df.to_html(escape=False, index=False,
+             float_format="{:10.2f}".format), unsafe_allow_html=True)
 
 
 # Note
