@@ -140,7 +140,8 @@ try:
         lambda x: '<a href="https://opensea.io/assets/bsc/0x9A01857f33aa382b1d5bb96C3180347862432B0d/' + str(x) + '">OS Link</a>')
     listings_df.drop(columns=["✔️ Vote Reset"], inplace=True)
     listings_df.sort_values(by="🛒 Discount %", ascending=False, inplace=True)
-
+except Exception as e:
+    print(e)
 
     # creating a single-element container
     placeholder = st.empty()
@@ -163,6 +164,5 @@ NFA, DYOR -- This web app is in beta, I am not responsible for any information o
             """
 )
 
-except Exception as e:
-    print(e)
+
 
