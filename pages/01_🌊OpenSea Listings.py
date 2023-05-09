@@ -140,17 +140,16 @@ try:
         lambda x: '<a href="https://opensea.io/assets/bsc/0x9A01857f33aa382b1d5bb96C3180347862432B0d/' + str(x) + '">OS Link</a>')
     listings_df.drop(columns=["✔️ Vote Reset"], inplace=True)
     listings_df.sort_values(by="🛒 Discount %", ascending=False, inplace=True)
+
+
+    # creating a single-element container
+    placeholder = st.empty()
+
+    # Empty Placeholder Filled
+    with placeholder.container():
+        st.write(listings_df.to_html(escape=False, index=False, float_format="{:10.2f}".format), unsafe_allow_html=True)
 except Exception as e:
     print(e)
-
-# creating a single-element container
-placeholder = st.empty()
-
-# Empty Placeholder Filled
-with placeholder.container():
-    st.write(listings_df.to_html(escape=False, index=False,
-             float_format="{:10.2f}".format), unsafe_allow_html=True)
-
 
 # Note
 st.markdown("#")
