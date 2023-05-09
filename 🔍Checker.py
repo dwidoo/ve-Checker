@@ -55,7 +55,6 @@ try:
 except Exception as e:
     print(e)
 
-
 try:
     provider_url = config["data"]["provider_url"]
     w3 = Web3(Web3.HTTPProvider(provider_url))
