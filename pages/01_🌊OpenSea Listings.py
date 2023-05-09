@@ -43,11 +43,13 @@ except Exception as e:
     print(e)
 
 try:
-    # Get THE & BNB Price
-    response = requests.get("https://api.thena.fi/api/v1/assets")
+    # Get CHR & ETH Price
+    response = requests.get("https://coins.llama.fi/prices/current/arbitrum:0x15b2fb8f08E4Ac1Ce019EADAe02eE92AeDF06851?searchWidth=1h")
     pricedict = response.json()
-    THE_price = jmespath.search("data[?name=='THENA'].price", pricedict)[0]
-    BNB_price = jmespath.search("data[?name=='Wrapped BNB'].price", pricedict)[0]
+    CHR_price = jmespath.search("data[?Symbol=='CHR'].price", pricedict)[0]
+    response2 = requests.get("https://coins.llama.fi/prices/current/ethereum:0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2?searchWidth=1h")
+    pricedict2 = response.json()
+    ETH_price = jmespath.search("data[?Symbol=='WETH'].price", pricedict2)[0]
 except Exception as e:
     print(e)
 
@@ -59,12 +61,10 @@ try:
     response = requests.get(listings_api, headers=headers)
   
     ## Pandas Manipulation
-    df = pd.json_normalize(response.json()['listings'])
-    df.drop(['order_hash', 'chain', 'type', 'protocol_address', 'price.current.currency', 'price.current.decimals', 'protocol_data.parameters.offerer', 'protocol_data.parameters.consideration', 'protocol_data.parameters.startTime', 'protocol_data.parameters.endTime', 'protocol_data.parameters.orderType', 'protocol_data.parameters.zone', 'protocol_data.parameters.zoneHash', 'protocol_data.parameters.salt', 'protocol_data.parameters.conduitKey', 'protocol_data.parameters.totalOriginalConsiderationItems', 'protocol_data.parameters.counter', 'protocol_data.signature'], axis=1, inplace=True)
-    df['protocol_data.parameters.offer'] = df['protocol_data.parameters.offer'].str[0]
-    df['id'] = pd.json_normalize(df['protocol_data.parameters.offer'])['identifierOrCriteria']
-    df.drop(['protocol_data.parameters.offer'], axis=1, inplace=True)
-    df['price.current.value'] = df['price.current.value'].astype(float)/1000000000000000000
+    df = pd.json_normalize(response.json())
+    df = df[['Orders Price Amount Native', 'Orders Criteria Data Token Tokenid']]
+    df.rename(columns={'Orders Price Amount Native': 'price.current.value', 'Orders Criteria Data Token Tokenid': 'id'}, inplace=True)
+    df['price.current.value'] = df['price.current.value'].astype(float)
     df['id'] = df['id'].astype(int)
     df.drop_duplicates(subset=["id"], keep='last', inplace=True)
 except Exception as e:
@@ -74,9 +74,9 @@ except Exception as e:
 try:
     tokenids = df['id']
     tokendata = []
-    def get_veTHE_data(tokenid):
+    def get_veCHR_data(tokenid):
         try:
-            # Locked veTHE
+            # Locked veCHR
             locked = round(
                 contract_instance1.functions.locked(tokenid).call()[0] / 1000000000000000000,
                 4,
@@ -91,7 +91,7 @@ try:
             if voted == True:
                 return
             
-            # Balance veTHE
+            # Balance veCHR
             bal = round(
                 contract_instance1.functions.balanceOfNFT(tokenid).call() / 1000000000000000000,
                 4,
@@ -103,26 +103,26 @@ try:
                 time.gmtime(int(contract_instance1.functions.locked(tokenid).call()[1])),
             )
 
-            tokendata.append({"🔢 Token ID": tokenid, "🔒 Locked THE": locked, "🧾 veTHE Balance": bal, "🤑 veTHE Value in USD": round(THE_price * locked, 4), "⏲️ Lock End Date": lockend, "✔️ Vote Reset": ["No" if voted == True else "Yes"][0]})
+            tokendata.append({"🔢 Token ID": tokenid, "🔒 Locked CHR": locked, "🧾 veCHR Balance": bal, "🤑 veCHR Value in USD": round(CHR_price * locked, 4), "⏲️ Lock End Date": lockend, "✔️ Vote Reset": ["No" if voted == True else "Yes"][0]})
         except Exception as e:
             print(e)
 
     with concurrent.futures.ThreadPoolExecutor() as ex:
-        ex.map(get_veTHE_data, tokenids)
+        ex.map(get_veCHR_data, tokenids)
 except Exception as e:
     print(e)
     
 ## Pandas Manipulation
 try:
     listings_df = pd.DataFrame(tokendata)
-#     listings_df = listings_df[listings_df["🔒 Locked THE"] >= 1]
+#     listings_df = listings_df[listings_df["🔒 Locked CHR"] >= 1]
 #     listings_df = listings_df[listings_df["✔️ Vote Reset"] == "Yes"]
     listings_df = listings_df.merge(df, how="left", left_on="🔢 Token ID", right_on="id").drop(columns="id")
-    listings_df.rename(columns = {"price.current.value":"🟨 Sale Price in BNB"}, inplace = True)
-    listings_df["💰 Sale Price in USD"] = listings_df["🟨 Sale Price in BNB"] * BNB_price
-    listings_df["💸 Potential Profit in USD"] = listings_df["🤑 veTHE Value in USD"] - listings_df["💰 Sale Price in USD"]
-    listings_df["🛒 Discount %"] = (listings_df["🤑 veTHE Value in USD"] - listings_df["💰 Sale Price in USD"]) / listings_df["🤑 veTHE Value in USD"] * 100
-    listings_df["🔗 OS Link"] = listings_df["🔢 Token ID"].apply(lambda x: '<a href="https://opensea.io/assets/bsc/0xfbbf371c9b0b994eebfcc977cef603f7f31c070d/' + str(x) + '">OS Link</a>')
+    listings_df.rename(columns = {"price.current.value":"🟨 Sale Price in ETH"}, inplace = True)
+    listings_df["💰 Sale Price in USD"] = listings_df["🟨 Sale Price in ETH"] * ETH_price
+    listings_df["💸 Potential Profit in USD"] = listings_df["🤑 veCHR Value in USD"] - listings_df["💰 Sale Price in USD"]
+    listings_df["🛒 Discount %"] = (listings_df["🤑 veCHR Value in USD"] - listings_df["💰 Sale Price in USD"]) / listings_df["🤑 veCHR Value in USD"] * 100
+    listings_df["🔗 OS Link"] = listings_df["🔢 Token ID"].apply(lambda x: '<a href="https://opensea.io/assets/bsc/0x9A01857f33aa382b1d5bb96C3180347862432B0d/' + str(x) + '">OS Link</a>')
     listings_df.drop(columns=["✔️ Vote Reset"], inplace=True)
     listings_df.sort_values(by="🛒 Discount %", ascending=False, inplace=True)
 except Exception as e:
@@ -143,7 +143,7 @@ st.caption(
     """
 NFA, DYOR -- This web app is in beta, I am not responsible for any information on this page.
 
-:red[The above list excludes veTHE which has not been vote reset or the locked value is very little or dust.]
+:red[The above list excludes veCHR which has not been vote reset or the locked value is very little or dust.]
 
 :red[Negative Discount/Profit = Bad Deal = ngmi]
     

@@ -11,7 +11,7 @@ import pandas as pd
 
 # App
 st.set_page_config(
-    page_title="🔍 veTHE Checker",
+    page_title="🔍 veCHR Checker",
     page_icon="icons/thena.png",
     layout="wide",
 )
@@ -29,7 +29,7 @@ def read_params(config_path):
 config = read_params(params_path)
 
 # Title
-st.title("🔍 veTHE Checker")
+st.title("🔍 veCHR Checker")
 
 # Select Button
 selection = st_btn_select(("Token ID", "Address"))
@@ -49,9 +49,9 @@ selection = st_btn_select(("Token ID", "Address"))
 
 
 try:
-    response = requests.get("https://api.thena.fi/api/v1/assets")
+    response = requests.get("https://coins.llama.fi/prices/current/arbitrum:0x15b2fb8f08E4Ac1Ce019EADAe02eE92AeDF06851?searchWidth=1h")
     pricedict = response.json()
-    THE_price = jmespath.search("data[?name=='THENA'].price", pricedict)[0]
+    CHR_price = jmespath.search("data[?Symbol=='CHR'].Price", pricedict)[0]
 except Exception as e:
     print(e)
 
@@ -73,7 +73,7 @@ try:
     contract_instance3 = w3.eth.contract(address=contract_address3, abi=abi3)
 
     # Total Supply
-    totalSupply = contract_instance3.functions.balanceOf("0xfBBF371C9B0B994EebFcC977CEf603F7f31c070D").call() / 1000000000000000000
+    totalSupply = contract_instance3.functions.balanceOf("0x9A01857f33aa382b1d5bb96C3180347862432B0d").call() / 1000000000000000000
 
     todayDate = datetime.utcnow()
     lastThursday = todayDate + relativedelta(weekday=TH(-1))
@@ -86,17 +86,17 @@ except Exception as e:
 
 # Token ID Search
 if selection == "Token ID":
-    tokenid = st.number_input("Your veTHE Token ID", min_value=1, format="%d")
+    tokenid = st.number_input("Your veCHR Token ID", min_value=1, format="%d")
 
     # Read Data
     try:
-        # Balance veTHE
+        # Balance veCHR
         bal = round(
             contract_instance1.functions.balanceOfNFT(tokenid).call() / 1000000000000000000,
             4,
         )
 
-        # Locked veTHE
+        # Locked veCHR
         locked = round(
             contract_instance1.functions.locked(tokenid).call()[0] / 1000000000000000000,
             4,
@@ -120,9 +120,9 @@ if selection == "Token ID":
         # Empty Placeholder Filled
         with placeholder.container():
             if tokenid:
-                st.markdown("🔒 Locked THE: " + str(locked))
-                st.markdown("🧾 veTHE Balance: " + str(bal))
-                st.markdown("🤑 Estimated BUSD Value: $" + str(round(THE_price * locked, 4)))
+                st.markdown("🔒 Locked CHR: " + str(locked))
+                st.markdown("🧾 veCHR Balance: " + str(bal))
+                st.markdown("🤑 Estimated BUSD Value: $" + str(round(CHR_price * locked, 4)))
                 st.markdown("⏲️ Lock End Date: " + str(lockend))
                 st.markdown("🗳️ Vote Share: " + str(round(bal / totalSupply * 100, 4)) + "%")
                 st.markdown("✔️ Vote Reset: " + ["No" if voted == True else "Yes"][0])
@@ -135,9 +135,9 @@ if selection == "Token ID":
             """
     NFA, DYOR -- This web app is in beta, I am not responsible for any information on this page.
             
-    BUSD Value is just an estimate of THE Price pulled from Firebird API.
+    BUSD Value is just an estimate of CHR Price pulled from Firebird API.
             
-    :red[If "Vote Reset" is No you cannot sell your veTHE unless you reset your vote.]
+    :red[If "Vote Reset" is No you cannot sell your veCHR unless you reset your vote.]
     
     :violet[If you found this useful you can buy me aka ALMIGHTY ABE a :coffee: at 0x5783Fb2f3d93364041d49097b66086703527AeaC]
             """
@@ -161,25 +161,25 @@ if selection == "Address":
             # Checksum Address
             wallet_address = Web3.toChecksumAddress(wallet_address)
 
-            # veTHE Owner
+            # veCHR Owner
             tokenids = []
             for index in range(100):
-                veTHE = contract_instance1.functions.tokenOfOwnerByIndex(wallet_address, index).call()
-                if veTHE > 0:
-                    tokenids.append(veTHE)
+                veCHR = contract_instance1.functions.tokenOfOwnerByIndex(wallet_address, index).call()
+                if veCHR > 0:
+                    tokenids.append(veCHR)
                 else:
                     break
 
-            # veTHE DF
+            # veCHR DF
             tokendata = []
             for tokenid in tokenids:
-                # Balance veTHE
+                # Balance veCHR
                 bal = round(
                     contract_instance1.functions.balanceOfNFT(tokenid).call() / 1000000000000000000,
                     4,
                 )
 
-                # Locked veTHE
+                # Locked veCHR
                 locked = round(
                     contract_instance1.functions.locked(tokenid).call()[0] / 1000000000000000000,
                     4,
@@ -200,9 +200,9 @@ if selection == "Address":
                 tokendata.append(
                     {
                         "🔢 Token ID": tokenid,
-                        "🔒 Locked THE": locked,
-                        "🧾 veTHE Balance": bal,
-                        "🤑 Estimated BUSD Value": round(THE_price * locked, 4),
+                        "🔒 Locked CHR": locked,
+                        "🧾 veCHR Balance": bal,
+                        "🤑 Estimated BUSD Value": round(CHR_price * locked, 4),
                         "⏲️ Lock End Date": lockend,
                         "🗳️ Vote Share %": round(bal / totalSupply * 100, 4),
                         "✔️ Vote Reset": ["No" if voted == True else "Yes"][0],
@@ -210,8 +210,8 @@ if selection == "Address":
                     }
                 )
 
-            veTHE_df = pd.DataFrame(tokendata)
-            veTHE_df.sort_values(by="🔢 Token ID", axis=0, inplace=True)
+            veCHR_df = pd.DataFrame(tokendata)
+            veCHR_df.sort_values(by="🔢 Token ID", axis=0, inplace=True)
 
             # creating a single-element container
             placeholder = st.empty()
@@ -219,7 +219,7 @@ if selection == "Address":
             # Empty Placeholder Filled
             with placeholder.container():
                 if wallet_address:
-                    st.dataframe(veTHE_df)
+                    st.dataframe(veCHR_df)
 
             # Note
             st.markdown("#")
@@ -228,9 +228,9 @@ if selection == "Address":
                 """
         NFA, DYOR -- This web app is in beta, I am not responsible for any information on this page.
                 
-        BUSD Value is just an estimate of THE Price pulled from Firebird API.
+        BUSD Value is just an estimate of CHR Price pulled from Firebird API.
                 
-        :red[If "Vote Reset" is No you cannot sell your veTHE unless you reset your vote.]
+        :red[If "Vote Reset" is No you cannot sell your veCHR unless you reset your vote.]
         
         :violet[If you found this useful you can buy me aka ALMIGHTY ABE a :coffee: at 0x5783Fb2f3d93364041d49097b66086703527AeaC]
                 """
