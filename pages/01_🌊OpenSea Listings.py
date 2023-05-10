@@ -140,15 +140,18 @@ try:
     listings_df.rename(
         columns={"price.current.value": "🟨 Sale Price in ETH"}, inplace=True)
     listings_df["💰 Sale Price in USD"] = listings_df["🟨 Sale Price in ETH"] * ETH_price
-    listings_df["💸 Potential Profit in USD"] = listings_df["🤑 veCHR Value in USD"] - \
-        listings_df["💰 Sale Price in USD"]
-    listings_df["🛒 Discount %"] = (listings_df["🤑 veCHR Value in USD"] -
-                                   listings_df["💰 Sale Price in USD"]) / listings_df["🤑 veCHR Value in USD"] * 100
-    listings_df["🛒 Discount maxlock %"] = (( listings_df["💰 Sale Price in USD"] / CHR_price ) / listings_df["🔒 Locked CHR"] -1 )* 100
+    #listings_df["💸 Potential Profit in USD"] = listings_df["🤑 veCHR Value in USD"] - \
+    #    listings_df["💰 Sale Price in USD"]
+    #listings_df["🛒 Discount %"] = (listings_df["🤑 veCHR Value in USD"] -
+    #                               listings_df["💰 Sale Price in USD"]) / listings_df["🤑 veCHR Value in USD"] * 100   
+    #listings_df["🛒 Discount maxlock %"] = (( listings_df["💰 Sale Price in USD"] / CHR_price ) / listings_df["🔒 Locked CHR"] -1 )* 100
+    listings_df["$/veCHR"] = listings_df["💰 Sale Price in USD"] / listings_df["🧾 veCHR Balance"]
+    listings_df["$/CHR locked"] = listings_df["💰 Sale Price in USD"] / listings_df["🔒 Locked CHR"]
+    listings_df["induced discount (locked CHR / CHR) %"] = (listings_df["$/CHR locked"] / CHR_price -1)*100
     listings_df["🔗 OS Link"] = listings_df["🔢 Token ID"].apply(
         lambda x: '<a href="https://opensea.io/assets/arbitrum/0x9A01857f33aa382b1d5bb96C3180347862432B0d/' + str(x) + '">OS Link</a>')
-    listings_df.drop(columns=["✔️ Vote Reset"], inplace=True)
-    listings_df.sort_values(by="🛒 Discount maxlock %", ascending=True, inplace=True)
+    listings_df.drop(columns=["✔️ Vote Reset","🤑 veCHR Value in USD"], inplace=True)
+    listings_df.sort_values(by="induced discount (locked CHR / CHR)", ascending=True, inplace=True)
 except Exception as e:
     print(e)
 
