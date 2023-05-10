@@ -88,7 +88,7 @@ try:
                     tokenid).call()[0] / 1000000000000000000,
                 4,
             )
-
+            print("id: "+str(tokenid)+" - locked: "+str(locked))
             if locked <= 1:
                 return
 
@@ -96,6 +96,7 @@ try:
             voted = contract_instance1.functions.voted(tokenid).call()
 
             if voted == True:
+                print("id: "+str(tokenid)+" voted")
                 return
 
             # Balance veCHR
@@ -111,9 +112,10 @@ try:
                 time.gmtime(
                     int(contract_instance1.functions.locked(tokenid).call()[1])),
             )
-
+            #print("kept id: "+str(tokenid)+" - lock end: "+str(lockend))
             tokendata.append({"🔢 Token ID": tokenid, "🔒 Locked CHR": locked, "🧾 veCHR Balance": bal, "🤑 veCHR Value in USD": round(
                 CHR_price * locked, 4), "⏲️ Lock End Date": lockend, "✔️ Vote Reset": ["No" if voted == True else "Yes"][0]})
+            print("appended id: "+str(tokenid))
         except Exception as e:
             print(e)
 
