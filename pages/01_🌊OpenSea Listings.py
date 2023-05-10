@@ -33,7 +33,8 @@ st.title("🌊 OpenSea Listings")
 
 try:
     listings_api = config["data"]["listings_api"]
-    provider_url = config["data"]["provider_url"]
+    #provider_url = config["data"]["provider_url"]
+    provider_url = st.secrets["arbitrum_provider"]
     validation.METHODS_TO_VALIDATE = []
     w3 = Web3(Web3.HTTPProvider(provider_url, request_kwargs={"timeout": 60}))
     abi1 = config["data"]["abi1"]
