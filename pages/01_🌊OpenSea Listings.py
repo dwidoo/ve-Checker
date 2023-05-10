@@ -2,12 +2,14 @@ import time
 import streamlit as st
 import yaml
 import requests
+from ratelimiter import RateLimiter
 import pandas as pd
 from web3 import Web3
 from web3.middleware import validation
 import jmespath
 import concurrent.futures
 import time
+
 
 # App
 st.set_page_config(
@@ -81,6 +83,8 @@ try:
     tokenids = df['id']
     tokendata = []
 
+    @RateLimiter(max_calls=5, period=1)
+
     def get_veCHR_data(tokenid):
         try:
             # Locked veCHR
@@ -89,7 +93,7 @@ try:
                     tokenid).call()[0] / 1000000000000000000,
                 4,
             )
-            print("id: "+str(tokenid)+" - locked: "+str(locked))
+#            print("id: "+str(tokenid)+" - locked: "+str(locked))
             if locked <= 1:
                 return
 
@@ -97,7 +101,7 @@ try:
             voted = contract_instance1.functions.voted(tokenid).call()
 
             if voted == True:
-                print("id: "+str(tokenid)+" voted")
+ #               print("id: "+str(tokenid)+" voted")
                 return
 
             # Balance veCHR
@@ -116,11 +120,11 @@ try:
             #print("kept id: "+str(tokenid)+" - lock end: "+str(lockend))
             tokendata.append({"🔢 Token ID": tokenid, "🔒 Locked CHR": locked, "🧾 veCHR Balance": bal, "🤑 veCHR Value in USD": round(
                 CHR_price * locked, 4), "⏲️ Lock End Date": lockend, "✔️ Vote Reset": ["No" if voted == True else "Yes"][0]})
-            print("appended id: "+str(tokenid))
+#            print("appended id: "+str(tokenid))
         except Exception as e:
             print(e)
 
-    with concurrent.futures.ThreadPoolExecutor() as ex:
+    with concurrent.futures.ThreadPoolExecutor(max_workers=5) as ex:
         ex.map(get_veCHR_data, tokenids)
 except Exception as e:
     print(e)
