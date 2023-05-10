@@ -151,7 +151,7 @@ try:
     listings_df["🔗 OS Link"] = listings_df["🔢 Token ID"].apply(
         lambda x: '<a href="https://opensea.io/assets/arbitrum/0x9A01857f33aa382b1d5bb96C3180347862432B0d/' + str(x) + '">OS Link</a>')
     listings_df.drop(columns=["✔️ Vote Reset","🤑 veCHR Value in USD"], inplace=True)
-    listings_df.sort_values(by="induced discount (locked CHR / CHR)", ascending=True, inplace=True)
+    listings_df.sort_values(by="induced discount (locked CHR / CHR) %", ascending=True, inplace=True)
 except Exception as e:
     print(e)
 
